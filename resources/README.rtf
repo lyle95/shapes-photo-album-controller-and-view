@@ -1,0 +1,209 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2759
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red3\green45\blue153;\red3\green45\blue153;}
+{\*\expandedcolortbl;;\cssrgb\c0\c25950\c66514;\cssrgb\c0\c25950\c66514;}
+\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf2 *All updates and changes based on Assignment 8 will be displayed in blue font\
+
+\f1\b0 \cf0 \
+Design Logic:\
+\cf2 The application follows the MVC architectural pattern, where the model (PhotoAlbum) manages the data, the views(GraphicalView and WebView) represent different ways of presenting the data to the user, and the controller coordinates interactions between the model and views.\cf0 \
+1. Shape inheritance: Difference shape classes inherit from an abstract 'Shape' class, allowing for reuse the methods and fields of Shape.\
+2. Transformation interface: The ITransformation interface defines a contract for different types of transformations that can be applied to shapes. Every transformation class can implement this interface to provide specific transformation behavior, such as Move, Resize and ChangeColor.\
+3. Snapshot: The Snapshot class captures a snapshot of the current status of the shapes in the photo album. It stores the shapes, a description of the snapshot, an ID and a timestamp.\
+4. PhotoAlbum: The PhotoAlbum class includes shapes and snapshots. It provides methods for adding, removing and transforming shapes, also taking snapshots, printing description of current shapes and printing all of the snapshots. \cf2 It also manages listeners and notifies listeners(views) when snapshots are taken or when changes occur in the photo album.\cf0 \
+\cf2 5. Views: Two views are designed to provide two kinds of view for viewing snapshots in the photo album. GraphicalView displays snapshots and their information in the GUI. WebView generates an HTML file containing all of the snapshots and their information in the PhotoAlbum. Both views register as listeners with the model(PhotoAlbum) to receive notifications when snapshots are taken or when changes occur in the photo album.\
+6. Controller: It acts as the central coordinator of the application. It initialized the photo album model and manages user interactions. The controller parses command-line arguments, processes user commands, and updated the views accordingly. It starts the appropriate view (graphical or web) by adding listeners and making the view visible.\
+7. Application entry point: The PhotoAlbumMain class serves as the entry point of the application. It parses command-line arguments to determine the view type and the output type. It also initialized the controller with the parsed arguments and starts the photo album application.\cf0 \
+8. Exception Handling: IllegalArgumentExceptions are thrown when invalid arguments are provided to constructors or methods, such as null or empty names, non-positive dimensions of shapes.\
+9. Testing: JUnit tests are provided to ensure that every IllegalArgumentExceptions are thrown when expected, and that the functionality of the classes behaves as expected under different scenarios. A smoke test in the Main is provided to act as the data visualization of Snapshot and PhotoAlbum. \cf2 The classes in the views package and controller package are difficult to write JUnit tests since most methods in these classes are private helper method. I can only test these classes using different input files to see if both GraphicalView and WebView works for them.\cf0 \
+\
+Model:\
+\
+shapes package: \
+\
+Color \cf2 (all parameters were changed to int from double)\cf0 \
+- Description: represents a color with RGB values\
+- Methods: \cf2 (add getter methods for each color parameter since drawShape() method in DrawPanel class needs to get each value of the Color when setting and drawing color.)\cf0 \
+\cf2   getR(): returns the value of r\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2   getG(): returns the value of g\
+  getB(): returns the value of b\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0   toString(): returns a string representation of the color in the format "r,g,b"\
+\
+Point \cf3 (all parameters were changed to int from double)\cf0 \
+- Description: represents a point in 2D coordinate system\
+- Methods:\
+  getX(): returns the x-coordinate of the point\
+  getY(): returns the y-coordinate of the point\
+  setX(double x): sets the x-coordinate of the point\
+  setY(double y): sets the y-coordinate of the point\
+\
+ShapeType Enum\
+- Description: represents the types of shapes that can be created\
+- Enum Constants: \
+  RECTANGLE: represents a rectangle shape\
+  OVAL: represents an oval shape\
+\
+Shape\
+- Description: represents a generic shape. It serves as the abstract class for specific shapes like rectangles and ovals\
+- Methods:\
+  getShapeType(): abstract method to get the type pf the shape\
+  copy(): abstract method to create a copy of the shape\
+  getPosition(): returns the position of the shape\
+  getColor(): returns the color of the shape\
+  setColor(Color color): sets the color of the shape\
+  getName(): returns the name of the shape\
+  describe(): abstract method to provide a description of the shape\
+  equals(Object o): returns true when two Shape objects have the same name\
+  hashCode(): generates a hash code for a Shape object based on its name\
+\
+Oval \cf3 (all parameters except name were changed to int from double)\cf0 \
+- Description: represents an oval shape\
+- Methods:\
+  copy(): create a deep copy of the oval\
+  getXRadius(): returns the x radius of the oval\
+  getYRadius(): returns the y radius of the oval\
+  setXRadius(\cf2 int\cf0  xRadius): sets the x radius of the oval\
+  setYRadius(\cf2 int\cf0  yRadius): sets the y radius of the oval\
+  describe(): returns a string describing the oval following a specific format\
+  getShapeType(): returns the type of shape(OVAL)\
+\
+Rectangle \cf3 (all parameters except name were changed to int from double)\cf0 \
+- Description: represents an rectangle shape\
+- Methods:\
+  copy(): create a deep copy of the rectangle\
+  getWidth(): returns the width of the rectangle\
+  getHeight(): returns the y height of the rectangle\
+  setWidth(\cf2 int\cf0  width): sets the width of the rectangle\
+  setHeight(\cf2 int\cf0  height): sets the height of the rectangle\
+  describe(): returns a string describing the rectangle following a specific format\
+  getShapeType(): returns the type of shape(RECTANGLE)\
+\
+transformation package:\
+\
+ITransformation\
+- Description: defines a contract for shape transformations, allows for different behavior when applying transformations to different types of shapes. Any class that implements this interface can define its own transformation logic for applying changes to shapes.\
+- Methods:\
+  apply(Shape shape): takes a shape as a parameter and applies the transformation to it\
+\
+ChangeColor\
+- Description: represents a shape transformation to change the color of the shape. It implements the ITransformation interface.\
+- Methods:\
+  apply(Shape shape): applies the transformation by setting the color of the given shape to the specified color\
+\
+Move \cf3 (all parameters were changed to int from double)\cf0 \
+- Description: represents a shape transformation to change the position of the shape. It implements the ITransformation interface.\
+- Methods:\
+  apply(Shape shape): applies the transformation by setting the position of the given shape to the new x and y positions\
+\
+Resize \cf3 (change parameters from x/y factor to x/y data since the input file provided give new size of the shape instead of x, y factor)\cf0 \
+- Description: represents a shape transformation to change the size of the shape. It implements the ITransformation interface.\
+- Methods:\
+  apply(Shape shape): applies the transformation by changing the dimensions of the given shape based on the \cf2 new x, y data\cf0 . It checks the type of shape(rectangle or oval in this project) and scales accordingly.\
+\
+TransformationSum\
+- Description: represents a collection of shape transformations to be applied sequentially. It implements the ITransformation interface.\
+- Methods:\
+  - addTransformation(ITransformation transformation): adds a transformation to the list of transformations\
+  - apply(Shape shape): applies all the transformations in the list to the given shape sequentially\
+\
+album package:\
+\
+Snapshot\
+- Description: represents a snapshot of the current status of shapes in the photo album. It contains a list of shapes, a description, an ID and a timestamp.\
+- Constructor: \
+  Snapshot(List<Shape>shapes, String description): constructs a new Snapshot object with the given list of shapes and description. It generates a timestamp and ID for the snapshot.\
+- Methods\
+  getShapes(): returns the list of shapes in the snapshot\
+  getDescription(): returns the description for the snapshot\
+  getID(): returns the ID of the snapshot\
+  getTimestamp(): returns the timestamp of the snapshot\
+  generateTimestampAndID(): this is a private helper method called in the constructor to generate the timestamp and ID based on the local date time for the snapshot\
+\
+PhotoAlbum\
+- Description: represents a photo album containing shapes and snapshots of those shapes. It provides methods to add and remove shapes, apply transformations to shapes, take snapshots of the current status of shapes, print descriptions of shapes, print snapshots and reset the album. \cf2 It sets the current index to 0 initially.\cf0 \
+- Methods:\
+  addShape(Shape shape): checks whether the shape's name already exists before adding the shape, then adds a shape to the list of the shapes in the album, and update the shape names set at the same time. \
+  removeShape(Shape shape): removes a shape from the list of the shapes in the album and updated the list of snapshotIDs accordingly\
+  \cf2 getShapes(): returns a copy of the list of shapes. It is used for Controller to get all the shapes in the photo album to check if there are duplicate shapes with the same name\cf0 \
+  updateSnapshotIDs(): helper method to synchronize the list of snapshot IDs with the list of snapshots\
+  applyTransformation(Map<Shape,ITransformation> transformations): checks if the shape exists before applying transformations to ensure that transformations are only applied to shapes that actually exist within the PhotoAlbum, then applies a set of transformations to the shapes in the album\
+  takeSnapshot(String description): takes a snapshot of the current status of shapes in the album with the given description; \cf2 calls notifySnapshotTaken() to notify listeners when snapshot taken.\cf0 \
+\cf2   getCurrentSnapshot(): returns the current snapshot. It is called in the constructor oh GraphicalView class to initialize draw panel with the shapes from the first snapshot.\
+  getSnapshot(int index): returns the snapshot of the specified index. It is called in GraphicalView class to update snapshot info and draw panel.\cf0 \
+  printDescription(): generates and returns a string containing descriptions of all shapes in the album\
+  printSnapshots(): generates and returns a string containing information about all snapshots taken in the album, including IDs, timestamps, descriptions and shapes information\
+  reset(): clears all shapes and snapshots from the album\
+\cf2   notifySnapshotTaken(Snapshot snapshot): notifies listeners that a snapshot has been taken\
+  getSnapshotIDs(): returns a list of all snapshot IDs in the album. It is called in the GraphicalView class to check the number of snapshots in the showNextSnapshot() method and transfer to a list for user to choose a specific snapshot in the jumpToSnapshot() method.\
+  addListener(PhotoAlbumListener listener): adds a listener to the list of listeners if it is not already present. It is called in the controller when graphical view or web view needs to be a listener.\
+\
+PhotoAlbumListener:\
+- Description: this interface serves as a contract for classes that are needed to be notified when a snapshot is taken within a photo album. By using this interface, the photo album decouples the process of taking snapshots from any specific actions that should occur in response to those snapshots. This promotes modularity and flexibility, as different components can independently listen for snapshot events and react accordingly, without tightly coupling their implementations to the photo album itself.\
+- Method:\
+  snapshotTaken(Snapshot snapshot): this method is called when a new snapshot is taken in the photo album. It provides the newly taken Snapshot object as an argument, allowing implementing classes to access information about the snapshot, such as its ID, description, timestamp and the shapes it contains.\cf0 \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 PhotoAlbumMain:\
+This class serves as the entry point of the application. It parses command-line arguments, initialized the controller, and starts the photo album application.\cf0 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\cf2 views package:\
+\
+GraphicalView\
+- Description: represents the graphical user interface (GUI) for viewing snapshots in the photo album. It extends JFrame and listens for changes in the photo album model to update the displayed snapshots.\
+- Methods:\
+  \cf3 constructor(PhotoAlbum photoAlbum): initializes a new instance of GraphicalView, sets up the GUI components such as labels, buttons, and draw panel, sets the title, layout and default close operation for the frame. It registers the view as a listener with the provided PhotoAlbum. It also displays the initial snapshot information and draw panel and initialized control buttons and adds action listeners.\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf3   initButtons(): initializes control buttons with their respective labels, adds action listeners to each button to handle user interactions.\
+  updateSnapshotInfo(): retrieves the current snapshot from the photo album, updates and sets the snapshot information displayed in the label.\
+  showPreviousSnapshot(): decrements the current snapshot index if there is a previous snapshot available; displays the previous snapshot in the photo album and updates the snapshot information and draw panel accordingly.\
+  showNextSnapshot(): increments the current snapshot index if there is a next snapshot available; displays the next snapshot in the photo album and updates the snapshot information and draw panel accordingly.\
+  jumpToSnapshot(): displays a dialog box with a dropdown menu of snapshot IDs and allows the user to jump to a specific snapshot by selecting from the list of snapshot IDs; updates the current snapshot index based on the selected snapshot, updates the snapshot information and draw panel accordingly.\
+  quitPhotoAlbum(): disposes of the graphical view frame, closing the application\
+  updateDrawPanel(): retrieves the shapes from the current snapshot in the photo album, updates the draw panel with shapes from the current snapshot and sets the shapes in the draw panel and triggers a repaint.\
+  setDescription(String description): sets the description of the current snapshot; updates the snapshot description when a new snapshot is taken\
+  snapshotTaken(Snapshot snapshot): callback method invoked when a new snapshot is taken in the photo album; updates the description, current snapshot index and draw panel with the new snapshot\'92s information.\cf2 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf2 \
+WebView\
+- Description: represents the web-based view for viewing snapshots in the photo album. It generates an HTML file containing the snapshots and their ID and descriptions.\
+- Methods:\
+  snapshotTaken(Snapshot snapshot): it is called when a snapshot is taken in the PhotoAlbum. It writes the snapshotID, description and SVG markup to the HTML file using a FileWriter. It generates SVG markup for each shape in the snapshot and writes it to the file.\
+  generateSVGMarkup(Snapshot snapshot): it is a private helper method to generate SVG markup for the shapes in the given snapshot. It constructs SVG elements for each shape in the snapshot and returns a string containing SVG markup for the shapes in the snapshot.\
+  close(): writes the closing HTML tags to the file and closes the FileWriter.\
+\
+DrawPanel\
+- Description: represents a panel in the graphical view where shapes are drawn based on the current snapshot.\
+- Methods:\
+  setShapes(List<Shape> newShapes): updates the list of shapes to be drawn with the provided list of new shapes and repaints the panel.\
+  paintComponent(Graphics g): an override method that paints the component with the specified graphics context.\
+  drawShape(Graphic g, Shape shape): it\'92s a private helper method to draw the specified shape on the panel using the provided graphics context. It extracts the position, size and color of the shape and sets the graphics context accordingly.\
+\
+controller package:\
+\
+Controller\
+- Description: the controller initialized the model, processes user commands and updated the views accordingly.\
+- Method:\
+  Controller\cf3 (String[] args): a constructor that initializes a new Controller instance with a PhotoAlbum model, initializes the command map and parses the command-line arguments.\cf2 \
+  initCommandMap(): initializea the command map with command types and their corresponding actions.\
+  parseArgument(String[] args): Iterates through the command-line arguments and extract information to determine the input file, view type and output file.\
+  processCommand(String filename): reads lines from the input file, skips comments and empty lines, and executes each command using executeCommand().\
+  executeCommand(String line): parses the command line, identifies the command type, and executes the corresponding action defined in the command map.\
+  createShape(String[] tokens): parses the command parameters to create a shape object and adds it to the PhotoAlbum model.\
+  moveShape\cf3 (String[] tokens): parses the command parameters to identify the shape and move the shape in the PhotoAlbum model.\
+  changeColor(String[] tokens): parses the command parameters to identify the shape and change the color of the shape in the PhotoAlbum model.\
+  resizeShape(String[] tokens): parses the command parameters to identify the shape and resize the shape in the PhotoAlbum model.\
+  removeShape(String[] tokens): parses the command parameters to identify the shape and remove the shape in the PhotoAlbum model.\
+  takeSnapshot(String[] tokens): parses the command parameters to extract the snapshot description, creates a snapshot of the current state of the PhotoAlbum model, and adds it to the snapshots list.\
+  createWebView(): initializes the WebView instances with the PhotoAlbum model and output file.\
+  createGraphicalView(): initializes the GraphicalView instances with the PhotoAlbum model.\
+  go(): starts the application by setting up the selected view and adding listeners to the PhotoAlbum model. Once the view is set up, it makes the view visible and closes the WebView if it was used.\
+\
+For initCommandMap(), parseArguments(String[] args), processCommand(String filename) and executeCommand(String line), these methods are private because they are internal to the Controller class and are used for parsing command-line arguments, initializing the command map and executing commands read from the input file. They contain logic specific to the internal workings of the Controller and are not meant to be exposed to external classes.\
+For action methods such as createShape(String[] tokens), moveShape(String[] tokens), they are private since they encapsulate functionality that is tightly coupled with the Controller class and are not intended to be accessed directly from outside the class.\
+These methods keep private making the class easier to understand, maintain and extend, and help prevent unintended usage or modification of its internal logic by other classes. }
